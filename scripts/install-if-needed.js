@@ -61,3 +61,29 @@ try {
   console.error("[install-if-needed] npm install failed:", err.message);
   process.exit(1);
 }
+
+// Normalize any Replit-internal registry URLs in the lockfile so the committed
+// package-lock.json always uses the public npm registry. This keeps Railway
+// (and any other CI) able to run `npm install` / `npm ci` without hitting
+// Replit's internal package firewall, which is unreachable outside Replit.
+try {
+  const lockfilePath = path.join(root, "package-lock.json");
+  if (fs.existsSync(lockfilePath)) {
+    const original = fs.readFileSync(lockfilePath, "utf-8");
+    const REPLIT_REGISTRY = "http://package-firewall.replit.local/npm";
+    const NPM_REGISTRY = "https://registry.npmjs.org";
+    if (original.includes(REPLIT_REGISTRY)) {
+      const normalized = original.split(REPLIT_REGISTRY).join(NPM_REGISTRY);
+      fs.writeFileSync(lockfilePath, normalized);
+      console.log(
+        "[install-if-needed] Normalized lockfile registry URLs (Replit → npm registry)",
+      );
+    }
+  }
+} catch (normErr) {
+  // Non-fatal: log but don't abort the workflow startup.
+  console.warn(
+    "[install-if-needed] Could not normalize lockfile:",
+    normErr.message,
+  );
+}
