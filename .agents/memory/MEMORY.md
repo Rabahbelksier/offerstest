@@ -1,0 +1,2 @@
+- [Offer type feature](offer-type-feature.md) — offerType/price3pcs added to offres table; 3 new trending templates in DB; conditional UI in admin screens and offer details.
+- [npm tar security block](npm-tar-fix.md) — tar@7.5.7 blocked by Replit security; fix: add `overrides: { tar: "7.5.22" }` to package.json and delete package-lock.json before reinstalling.

@@ -177,6 +177,41 @@ ${BOT_LINK}
 📎رابط الشراء👇
 {trending}`,
 
+  trending_currency: `غـــيـــر الجديد في عرض العملات😍
+🔥 تخفيض على {title}
+🟡 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+🟡 تخفيض إضافي بواسطة العملات (غير الدولة إلى كندا)
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
+📎رابط الشراء👇
+{trending}`,
+
+  trending_bundle: `غـــيـــر الجديد في عروض الحزمات 3 قطع😍
+🔥 تخفيض على {title}
+💶 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+📦 سعر 3 قطع: [ {price3pcs} ]
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
+📎رابط الشراء👇
+{trending}`,
+
+  trending_super_bigsave: `غـــيـــر الجديد في عروض السوبر وبيڤ سايف😍
+🔥 تخفيض على {title}
+💶 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
+📎رابط الشراء👇
+{trending}`,
+
   coin_link: `غـــيـــر الجديــــــــد ما تراطيــــــش😍
 🔥 تخفيض على {title}
 💶 السعر: [ $ ] 
@@ -485,6 +520,37 @@ ${APP_LINK}
 ${BOT_LINK}
 🛒 Buy Now 👇
 {trending}`,
+  trending_currency_en: `New Currency Deal on {title}!
+🟡 Price: [ {finalPricetrend} ] ✈️ including shipping
+🟡 Extra discount via Coins Page (change region to Canada)
+💡 {info}
+📱 Offres365 App 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Buy Now 👇
+{trending}`,
+
+  trending_bundle_en: `New Bundle Deal on {title}!
+💶 Price: [ {finalPricetrend} ] ✈️ including shipping
+📦 3-piece price: [ {price3pcs} ]
+💡 {info}
+📱 Offres365 App 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Buy Now 👇
+{trending}`,
+
+  trending_super_bigsave_en: `Super / Big Save Deal on {title}!
+💶 Price: [ {finalPricetrend} ] ✈️ including shipping
+💡 {info}
+📱 Offres365 App 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Buy Now 👇
+{trending}`,
 
   coin_link_en: `🔥 Deal on {title}!
 💵 Price: [ $ ]
@@ -780,6 +846,37 @@ ${BOT_LINK}
 ${APP_LINK}
 🤖 Bot 👇
 ${BOT_LINK}
+🛒 Acheter 👇
+{trending}`,
+  trending_currency_fr: `Nouvelle offre Monnaie sur {title} !
+🟡 Prix : [ {finalPricetrend} ] ✈️ frais de livraison inclus
+🟡 Remise supplémentaire via la page Monnaies (changer le pays en Canada)
+💡 {info}
+📱 Application Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Acheter 👇
+{trending}`,
+
+  trending_bundle_fr: `Nouvelle offre Bundle sur {title} !
+💶 Prix : [ {finalPricetrend} ] ✈️ frais de livraison inclus
+📦 Prix pour 3 pièces : [ {price3pcs} ]
+💡 {info}
+📱 Application Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Acheter 👇
+{trending}`,
+
+  trending_super_bigsave_fr: `Offre Super / Big Save sur {title} !
+💶 Prix : [ {finalPricetrend} ] ✈️ frais de livraison inclus
+💡 {info}
+📱 Application Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
 🛒 Acheter 👇
 {trending}`,
 
@@ -1079,6 +1176,37 @@ ${APP_LINK}
 ${BOT_LINK}
 🛒 Comprar 👇
 {trending}`,
+  trending_currency_pt: `Nova oferta de Moedas em {title}!
+🟡 Preço: [ {finalPricetrend} ] ✈️ com frete incluso
+🟡 Desconto extra via Página de Moedas (mude o país para o Canadá)
+💡 {info}
+📱 App Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Comprar 👇
+{trending}`,
+
+  trending_bundle_pt: `Nova oferta de Bundle em {title}!
+💶 Preço: [ {finalPricetrend} ] ✈️ com frete incluso
+📦 Preço por 3 peças: [ {price3pcs} ]
+💡 {info}
+📱 App Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Comprar 👇
+{trending}`,
+
+  trending_super_bigsave_pt: `Oferta Super / Big Save em {title}!
+💶 Preço: [ {finalPricetrend} ] ✈️ com frete incluso
+💡 {info}
+📱 App Offres365 👇
+https://offres365page.up.railway.app/
+🤖 Bot 👇
+https://t.me/rabahcopons/7219
+🛒 Comprar 👇
+{trending}`,
 
   coin_link_pt: `🔥 Oferta em {title}!
 💵 Preço: [ $ ]
@@ -1303,6 +1431,8 @@ export async function verifyTables() {
     await db.execute(sql`ALTER TABLE offres ADD COLUMN IF NOT EXISTS country TEXT`);
     await db.execute(sql`ALTER TABLE offres ADD COLUMN IF NOT EXISTS date TIMESTAMPTZ DEFAULT NOW()`);
     await db.execute(sql`ALTER TABLE offres ADD COLUMN IF NOT EXISTS current_price TEXT`);
+    await db.execute(sql`ALTER TABLE offres ADD COLUMN IF NOT EXISTS offer_type TEXT`);
+    await db.execute(sql`ALTER TABLE offres ADD COLUMN IF NOT EXISTS price3pcs TEXT`);
 
     // ── offres_meta (auto-sync version tracking) ─────────────────────────────
     await db.execute(sql`

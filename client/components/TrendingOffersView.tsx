@@ -53,6 +53,8 @@ interface Offre {
   promoValue?: string;
   date?: string | null;
   currentPrice?: string | null;
+  offerType?: string;
+  price3pcs?: string;
 }
 
 export function TrendingOffersView() {
@@ -375,6 +377,8 @@ export function TrendingOffersView() {
               country: country,
               currentPrice: item.currentPrice || "",
               imageUrl: item.imageUrl || "",
+              offerType: item.offerType || "",
+              price3pcs: item.price3pcs || "",
             })}
           >
             <Feather name="edit-2" size={14} color="#fff" />

@@ -43,7 +43,7 @@ export type RootStackParamList = {
   AdminAddOffre: undefined;
   AdminEditCalendrier: { id: number; title: string; linkImg: string; info: string; titleEn?: string; titleFr?: string; titlePt?: string; infoEn?: string; infoFr?: string; infoPt?: string };
   AdminEditCoin: { id: number; title: string; titleEn?: string; titleFr?: string; titlePt?: string; link: string; info: string; infoEn?: string; infoFr?: string; infoPt?: string };
-  AdminEditOffre: { id: number; title: string; price: string; sellerCoupon: string; productUrl: string; info: string; country: string; currentPrice?: string; imageUrl?: string };
+  AdminEditOffre: { id: number; title: string; price: string; sellerCoupon: string; productUrl: string; info: string; country: string; currentPrice?: string; imageUrl?: string; offerType?: string; price3pcs?: string };
   AdminEditCoupon: { row: any };
   SupportChat: undefined;
   AdminChatsList: undefined;

@@ -85,6 +85,10 @@ export const offres = pgTable("offres", {
   promoCode2:  text("promo_code_2"),
   promoCode3:  text("promo_code_3"),
   promoValue:  text("promo_value"),
+  // Offer type classification: normal | currency | super | bigsave | bundle
+  offerType:   text("offer_type"),
+  // Price of 3 pieces — used only when offerType = 'bundle'
+  price3pcs:   text("price3pcs"),
 });
 
 // Offres metadata: last update timestamp per country (for auto-sync)

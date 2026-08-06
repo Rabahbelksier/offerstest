@@ -195,6 +195,8 @@ export default function OfferDetailsScreen() {
     sellerCoupon: offer.sellerCoupon || "",
     dbPrice: offer.price_trending || offer.price || "",
     info: offer.info || "",
+    offerType: (offer as any).offerType || (offer as any).offer_type || "",
+    price3pcs: (offer as any).price3pcs || "",
   });
 
   const fetchFullDetails = async (forceRefresh = false, cc?: string) => {
@@ -249,6 +251,8 @@ export default function OfferDetailsScreen() {
         cod_1: (offer as any).cod_1 || data.cod_1 || "",
         cod_2: (offer as any).cod_2 || data.cod_2 || "",
         cod_3: (offer as any).cod_3 || data.cod_3 || "",
+        offerType: (offer as any).offerType || (offer as any).offer_type || "",
+        price3pcs: (offer as any).price3pcs || "",
       };
       
       setProductDetails(enhancedData);
@@ -291,10 +295,19 @@ export default function OfferDetailsScreen() {
     return formatted;
   };
 
+  /** Returns the template DB key based on the offer type */
+  const getTrendingTemplateKey = (): string => {
+    const ot = ((offer as any).offerType || (offer as any).offer_type || "normal") as string;
+    if (ot === "currency") return "trending_currency";
+    if (ot === "bundle") return "trending_bundle";
+    if (ot === "super" || ot === "bigsave") return "trending_super_bigsave";
+    return "trending";
+  };
+
   const copyTrendingLink = async () => {
     if (!productDetails) return;
     try {
-      const template = await getShareTemplate("trending", language);
+      const template = await getShareTemplate(getTrendingTemplateKey(), language);
       const text = formatOfferMessage(productDetails, template);
       await Clipboard.setStringAsync(text);
       if (Platform.OS !== "web") {
@@ -309,7 +322,7 @@ export default function OfferDetailsScreen() {
   const shareTrendingOffer = async () => {
     if (!productDetails) return;
     try {
-      const template = await getShareTemplate("trending", language);
+      const template = await getShareTemplate(getTrendingTemplateKey(), language);
       const text = formatOfferMessage(productDetails, template);
       await Share.share({ message: text });
     } catch (error) {
@@ -367,7 +380,14 @@ export default function OfferDetailsScreen() {
               </View>
             ) : null}
 
-            {productDetails?.sellerCoupon ? (
+            {((offer as any).offerType || (offer as any).offer_type) === "bundle" && productDetails?.price3pcs ? (
+              <View style={[styles.infoRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row', marginTop: Spacing.sm }]}>
+                <ThemedText type="body" style={{ fontWeight: '700' }}>سعر 3 قطع: </ThemedText>
+                <ThemedText type="h3" style={{ color: AppColors.primary }}>{productDetails.price3pcs}</ThemedText>
+              </View>
+            ) : null}
+
+            {productDetails?.sellerCoupon && !["super","bigsave","bundle"].includes((offer as any).offerType || (offer as any).offer_type || "") ? (
               <View style={[styles.infoRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row', marginTop: Spacing.sm }]}>
                 <ThemedText type="body" style={{ fontWeight: '700' }}>{t("seller_coupon")}: </ThemedText>
                 <ThemedText type="body" style={{ color: theme.text }}>{productDetails.sellerCoupon}</ThemedText>
@@ -389,7 +409,7 @@ export default function OfferDetailsScreen() {
               </ThemedText>
             ) : null}
 
-            {(productDetails?.cod_1 || productDetails?.cod_2 || productDetails?.cod_3) ? (
+            {(productDetails?.cod_1 || productDetails?.cod_2 || productDetails?.cod_3) && !["super","bigsave"].includes((offer as any).offerType || (offer as any).offer_type || "") ? (
               <View style={[styles.promoSection, { marginTop: Spacing.md }]}>
                 <View style={[styles.promoHeaderRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
                   <ThemedText type="small" style={{ fontWeight: '600', textAlign: language === 'ar' ? 'right' : 'left' }}>{t("best_promo_codes")}:</ThemedText>

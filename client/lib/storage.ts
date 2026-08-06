@@ -22,6 +22,9 @@ const STORAGE_KEYS = {
   BEST_SELLER_TEMPLATE: "offers365_best_seller_template",
   CART_TEMPLATE: "offers365_cart_template",
   CART_NOTE_TEMPLATE: "offers365_cart_note_template",
+  TRENDING_CURRENCY_TEMPLATE: "offers365_trending_currency_template",
+  TRENDING_BUNDLE_TEMPLATE: "offers365_trending_bundle_template",
+  TRENDING_SUPER_BIGSAVE_TEMPLATE: "offers365_trending_super_bigsave_template",
   TRENDING_OFFERS_LIST: "offers365_trending_offers_list",
   TRENDING_OFFER_DETAILS: "offers365_trending_offer_details_",
   ALL_OFFRES: "offers365_all_offres_",
@@ -65,6 +68,8 @@ export interface ProductItem {
   originalUrl?: string;
   affiliateUrl?: string;
   affiliateStoreUrl?: string;
+  offerType?: string;
+  price3pcs?: string;
 }
 
 export interface OfferItem {
@@ -267,6 +272,42 @@ export const DEFAULT_TRENDING_SHARE_TEMPLATE = `غـــيـــر الجديـ�
 ${APP_LINK}
 📎رابط البوت👇
 ${BOT_LINK} 
+📎رابط الشراء👇
+{trending}`;
+
+
+export const DEFAULT_TRENDING_CURRENCY_TEMPLATE = `غـــيـــر الجديد في عرض العملات😍
+🔥 تخفيض على {title}
+🟡 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+🟡 تخفيض إضافي بواسطة العملات (غير الدولة إلى كندا)
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
+📎رابط الشراء👇
+{trending}`;
+
+export const DEFAULT_TRENDING_BUNDLE_TEMPLATE = `غـــيـــر الجديد في عروض الحزمات 3 قطع😍
+🔥 تخفيض على {title}
+💶 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+📦 سعر 3 قطع: [ {price3pcs} ]
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
+📎رابط الشراء👇
+{trending}`;
+
+export const DEFAULT_TRENDING_SUPER_BIGSAVE_TEMPLATE = `غـــيـــر الجديد في عروض السوبر وبيڤ سايف😍
+🔥 تخفيض على {title}
+💶 السعر: [ {finalPricetrend} ] ✈️باحتساب رسوم الشحن
+💡 {info}
+📎رابط تطبيق العروض Offres365👇
+https://offres365page.up.railway.app/
+📎رابط البوت👇
+https://t.me/rabahcopons/7219 
 📎رابط الشراء👇
 {trending}`;
 
@@ -1451,6 +1492,9 @@ export const DEFAULT_TEMPLATES_PER_LANG: Record<string, Record<string, string>> 
     details:            DEFAULT_DETAILS_TEMPLATE,
     copyAll:            DEFAULT_COPY_ALL_TEMPLATE,
     trending:           DEFAULT_TRENDING_SHARE_TEMPLATE,
+    trending_currency:  DEFAULT_TRENDING_CURRENCY_TEMPLATE,
+    trending_bundle:    DEFAULT_TRENDING_BUNDLE_TEMPLATE,
+    trending_super_bigsave: DEFAULT_TRENDING_SUPER_BIGSAVE_TEMPLATE,
     coin_link:          DEFAULT_COIN_LINK_TEMPLATE,
     direct_link:        DEFAULT_DIRECT_LINK_TEMPLATE,
     super_link:         DEFAULT_SUPER_LINK_TEMPLATE,
@@ -1803,6 +1847,8 @@ export function formatProductMessage(
     .replace(/{cod_1}/g, product.cod_1 || "")
     .replace(/{cod_2}/g, product.cod_2 || "")
     .replace(/{cod_3}/g, product.cod_3 || "")
+    .replace(/{info}/g, product.info || "")
+    .replace(/{price3pcs}/g, product.price3pcs || "")
     .replace(/{offers}/g, offersText);
 
   // Replace specific offer links if they exist
@@ -1824,7 +1870,9 @@ export function formatProductMessage(
     "{coin_link}", "{direct_link}", "{super_link}", "{big_save_link}",
     "{limited_link}", "{potential_link}", "{bundle_direct_link}", "{bundle_page_link}",
     "{commissionRate}", "{categoryName}", "{shopUrl}", "{commission_rate}", "{first_level_category_name}",
-    "{finalPricetrend}"
+    "{finalPricetrend}",
+    "{info}",
+    "{price3pcs}"
   ];
   specificLinkKeys.forEach(key => {
     formatted = formatted.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "g"), "");
@@ -1997,6 +2045,9 @@ const TEMPLATE_KEY_MAP: Record<string, string> = {
   copyAll: STORAGE_KEYS.COPY_ALL_TEMPLATE,
   best_seller: STORAGE_KEYS.BEST_SELLER_TEMPLATE,
   trending: STORAGE_KEYS.TRENDING_SHARE_TEMPLATE,
+  trending_currency: STORAGE_KEYS.TRENDING_CURRENCY_TEMPLATE,
+  trending_bundle: STORAGE_KEYS.TRENDING_BUNDLE_TEMPLATE,
+  trending_super_bigsave: STORAGE_KEYS.TRENDING_SUPER_BIGSAVE_TEMPLATE,
   coin_link: STORAGE_KEYS.COIN_LINK_TEMPLATE,
   direct_link: STORAGE_KEYS.DIRECT_LINK_TEMPLATE,
   super_link: STORAGE_KEYS.SUPER_LINK_TEMPLATE,

@@ -26,10 +26,41 @@ import { getApiUrl } from "@/lib/query-client";
 import { SHIPPING_COUNTRY_CODES_LOWER } from "@/constants/countries";
 const COUNTRIES = SHIPPING_COUNTRY_CODES_LOWER;
 
+// ── Offer type options ──────────────────────────────────────────────────────
+type OfferType = "normal" | "currency" | "super" | "bigsave" | "bundle";
+
+interface OfferTypeOption {
+  value: OfferType;
+  label: string;
+}
+
+const OFFER_TYPE_OPTIONS: OfferTypeOption[] = [
+  { value: "normal",   label: "عرض عادي" },
+  { value: "currency", label: "عرض عملات" },
+  { value: "super",    label: "عرض السوبر" },
+  { value: "bigsave",  label: "عرض البيڤ سايف" },
+  { value: "bundle",   label: "عرض الحزمات" },
+];
+
+/** Types that hide the seller coupon field */
+const HIDE_SELLER_COUPON: OfferType[] = ["super", "bigsave", "bundle"];
+
+/** Types that show the price3pcs field */
+const SHOW_PRICE3PCS: OfferType[] = ["bundle"];
+
 type RouteParams = {
   AdminEditOffre: {
-    id: number; title: string; price: string; sellerCoupon: string;
-    productUrl: string; info: string; country: string; currentPrice?: string; imageUrl?: string;
+    id: number;
+    title: string;
+    price: string;
+    sellerCoupon: string;
+    productUrl: string;
+    info: string;
+    country: string;
+    currentPrice?: string;
+    imageUrl?: string;
+    offerType?: string;
+    price3pcs?: string;
   };
 };
 
@@ -51,12 +82,25 @@ export default function AdminEditOffreScreen() {
   const [info, setInfo] = useState(params.info || "");
   const [imageUrl, setImageUrl] = useState(params.imageUrl || "");
   const [country, setCountry] = useState((params.country || "dz").toLowerCase());
+  const [offerType, setOfferType] = useState<OfferType>((params.offerType as OfferType) || "normal");
+  const [price3pcs, setPrice3pcs] = useState(params.price3pcs || "");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [showTypePicker, setShowTypePicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState({ visible: false, message: "", type: "success" as "success" | "error" });
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "success" as "success" | "error",
+  });
 
   const showToast = (message: string, type: "success" | "error" = "success") =>
     setToast({ visible: true, message, type });
+
+  const hideSellerCoupon = HIDE_SELLER_COUPON.includes(offerType);
+  const showPrice3pcsField = SHOW_PRICE3PCS.includes(offerType);
+
+  const selectedTypeLabel =
+    OFFER_TYPE_OPTIONS.find(o => o.value === offerType)?.label ?? "عرض عادي";
 
   const handleApply = async () => {
     setIsSubmitting(true);
@@ -65,7 +109,18 @@ export default function AdminEditOffreScreen() {
       const res = await fetch(new URL(`/api/admin/offres/${params.id}`, apiUrl).href, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, price, sellerCoupon, productUrl, info, country, currentPrice, imageUrl }),
+        body: JSON.stringify({
+          title,
+          price,
+          sellerCoupon: hideSellerCoupon ? "" : sellerCoupon,
+          productUrl,
+          info,
+          country,
+          currentPrice,
+          imageUrl,
+          offerType,
+          price3pcs: showPrice3pcsField ? price3pcs : "",
+        }),
       });
       if (!res.ok) throw new Error();
       showToast(t("changes_saved"));
@@ -79,72 +134,219 @@ export default function AdminEditOffreScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Toast visible={toast.visible} message={toast.message} type={toast.type} onHide={() => setToast(p => ({ ...p, visible: false }))} />
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast(p => ({ ...p, visible: false }))}
+      />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={headerHeight}
       >
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, paddingBottom: insets.bottom + (Platform.OS === "android" ? 340 : 100) }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.fieldContainer}>
-          <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>{t("country_code")}</ThemedText>
-          <Pressable style={[styles.countryBtn, { backgroundColor: AppColors.primary }]} onPress={() => setShowCountryPicker(true)}>
-            <ThemedText type="body" style={{ color: "#fff", fontWeight: "700" }}>{country.toUpperCase()}</ThemedText>
-            <Feather name="chevron-down" size={16} color="#fff" />
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: Spacing.lg,
+            paddingTop: Spacing.md,
+            paddingBottom: insets.bottom + (Platform.OS === "android" ? 340 : 100),
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Country selector */}
+          <View style={styles.fieldContainer}>
+            <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+              {t("country_code")}
+            </ThemedText>
+            <Pressable
+              style={[styles.pickerBtn, { backgroundColor: AppColors.primary }]}
+              onPress={() => setShowCountryPicker(true)}
+            >
+              <ThemedText type="body" style={{ color: "#fff", fontWeight: "700" }}>
+                {country.toUpperCase()}
+              </ThemedText>
+              <Feather name="chevron-down" size={16} color="#fff" />
+            </Pressable>
+          </View>
+
+          {/* Offer type selector */}
+          <View style={styles.fieldContainer}>
+            <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+              نوع العرض
+            </ThemedText>
+            <Pressable
+              style={[styles.pickerBtn, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }]}
+              onPress={() => setShowTypePicker(true)}
+            >
+              <ThemedText type="body" style={{ color: theme.text, fontWeight: "600" }}>
+                {selectedTypeLabel}
+              </ThemedText>
+              <Feather name="chevron-down" size={16} color={theme.textSecondary} />
+            </Pressable>
+          </View>
+
+          {/* Static text fields */}
+          {[
+            { label: "Title", value: title, onChange: setTitle, placeholder: "Product title..." },
+            { label: "Price (final/trending)", value: price, onChange: setPrice, placeholder: "12.99$" },
+            { label: "Current Price (for coupon matching)", value: currentPrice, onChange: setCurrentPrice, placeholder: "15.00$" },
+          ].map(({ label, value, onChange, placeholder }) => (
+            <View key={label} style={styles.fieldContainer}>
+              <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+                {label}
+              </ThemedText>
+              <TextInput
+                style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundSecondary, borderColor: theme.border }]}
+                value={value}
+                onChangeText={onChange}
+                placeholder={placeholder}
+                placeholderTextColor={theme.textSecondary}
+                textAlign={isRTL ? "right" : "left"}
+                textAlignVertical="center"
+              />
+            </View>
+          ))}
+
+          {/* Seller coupon — hidden for super/bigsave/bundle */}
+          {!hideSellerCoupon && (
+            <View style={styles.fieldContainer}>
+              <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+                Seller Coupon
+              </ThemedText>
+              <TextInput
+                style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundSecondary, borderColor: theme.border }]}
+                value={sellerCoupon}
+                onChangeText={setSellerCoupon}
+                placeholder="2.00$"
+                placeholderTextColor={theme.textSecondary}
+                textAlign={isRTL ? "right" : "left"}
+                textAlignVertical="center"
+              />
+            </View>
+          )}
+
+          {/* Price 3 pcs — only for bundle */}
+          {showPrice3pcsField && (
+            <View style={styles.fieldContainer}>
+              <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+                سعر 3 قطع (Bundle)
+              </ThemedText>
+              <TextInput
+                style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundSecondary, borderColor: theme.border }]}
+                value={price3pcs}
+                onChangeText={setPrice3pcs}
+                placeholder="e.g. 29.99$"
+                placeholderTextColor={theme.textSecondary}
+                textAlign={isRTL ? "right" : "left"}
+                textAlignVertical="center"
+              />
+            </View>
+          )}
+
+          {/* Remaining fields */}
+          {[
+            { label: "Product URL", value: productUrl, onChange: setProductUrl, placeholder: "https://...", multiline: false },
+            { label: "Image URL (optional)", value: imageUrl, onChange: setImageUrl, placeholder: "https://...", multiline: false },
+            { label: "Info", value: info, onChange: setInfo, placeholder: "Additional info...", multiline: true },
+          ].map(({ label, value, onChange, placeholder, multiline }) => (
+            <View key={label} style={styles.fieldContainer}>
+              <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>
+                {label}
+              </ThemedText>
+              <TextInput
+                style={[
+                  styles.input,
+                  { color: theme.text, backgroundColor: theme.backgroundSecondary, borderColor: theme.border },
+                  multiline && { minHeight: 80 },
+                ]}
+                value={value}
+                onChangeText={onChange}
+                placeholder={placeholder}
+                placeholderTextColor={theme.textSecondary}
+                multiline={multiline}
+                numberOfLines={multiline ? 3 : 1}
+                textAlign={isRTL ? "right" : "left"}
+                textAlignVertical={multiline ? "top" : "center"}
+              />
+            </View>
+          ))}
+        </ScrollView>
+
+        <View style={[styles.bottomBtns, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: theme.backgroundRoot }]}>
+          <Pressable
+            style={[styles.btn, { backgroundColor: AppColors.primary, opacity: isSubmitting ? 0.7 : 1 }]}
+            onPress={handleApply}
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Feather name="check" size={18} color="#fff" />
+            }
+            <ThemedText type="body" style={{ color: "#fff", fontWeight: "700" }}>
+              {t("apply_changes")}
+            </ThemedText>
           </Pressable>
         </View>
-
-        {[
-          { label: "Title", value: title, onChange: setTitle, placeholder: "Product title..." },
-          { label: "Price (final/trending)", value: price, onChange: setPrice, placeholder: "12.99$" },
-          { label: "Current Price (for coupon matching)", value: currentPrice, onChange: setCurrentPrice, placeholder: "15.00$" },
-          { label: "Seller Coupon", value: sellerCoupon, onChange: setSellerCoupon, placeholder: "2.00$" },
-          { label: "Product URL", value: productUrl, onChange: setProductUrl, placeholder: "https://..." },
-          { label: "Image URL (optional)", value: imageUrl, onChange: setImageUrl, placeholder: "https://..." },
-          { label: "Info", value: info, onChange: setInfo, placeholder: "Additional info...", multiline: true },
-        ].map(({ label, value, onChange, placeholder, multiline }) => (
-          <View key={label} style={styles.fieldContainer}>
-            <ThemedText type="caption" style={[styles.label, { color: theme.textSecondary }]}>{label}</ThemedText>
-            <TextInput
-              style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundSecondary, borderColor: theme.border }]}
-              value={value}
-              onChangeText={onChange}
-              placeholder={placeholder}
-              placeholderTextColor={theme.textSecondary}
-              multiline={multiline}
-              numberOfLines={multiline ? 3 : 1}
-              textAlign={isRTL ? "right" : "left"}
-              textAlignVertical={multiline ? "top" : "center"}
-            />
-          </View>
-        ))}
-      </ScrollView>
-
-      <View style={[styles.bottomBtns, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: theme.backgroundRoot }]}>
-        <Pressable style={[styles.btn, { backgroundColor: AppColors.primary, opacity: isSubmitting ? 0.7 : 1 }]} onPress={handleApply} disabled={isSubmitting}>
-          {isSubmitting ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="check" size={18} color="#fff" />}
-          <ThemedText type="body" style={{ color: "#fff", fontWeight: "700" }}>{t("apply_changes")}</ThemedText>
-        </Pressable>
-      </View>
       </KeyboardAvoidingView>
 
+      {/* Country picker */}
       <Modal visible={showCountryPicker} transparent animationType="fade" onRequestClose={() => setShowCountryPicker(false)}>
         <Pressable style={styles.overlay} onPress={() => setShowCountryPicker(false)}>
           <View style={[styles.pickerCard, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
-            <ThemedText type="h4" style={{ padding: Spacing.md, textAlign: "center" }}>{t("select_country")}</ThemedText>
-            {COUNTRIES.map((cc) => (
+            <ThemedText type="h4" style={{ padding: Spacing.md, textAlign: "center" }}>
+              {t("select_country")}
+            </ThemedText>
+            <ScrollView style={{ maxHeight: 400 }}>
+              {COUNTRIES.map((cc) => (
+                <Pressable
+                  key={cc}
+                  style={[
+                    styles.pickerItem,
+                    { borderColor: theme.border },
+                    country === cc && { backgroundColor: `${AppColors.primary}15` },
+                  ]}
+                  onPress={() => { setCountry(cc); setShowCountryPicker(false); }}
+                >
+                  <ThemedText
+                    type="body"
+                    style={{ color: country === cc ? AppColors.primary : theme.text, fontWeight: country === cc ? "700" : "400" }}
+                  >
+                    {cc.toUpperCase()}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Offer type picker */}
+      <Modal visible={showTypePicker} transparent animationType="fade" onRequestClose={() => setShowTypePicker(false)}>
+        <Pressable style={styles.overlay} onPress={() => setShowTypePicker(false)}>
+          <View style={[styles.pickerCard, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
+            <ThemedText type="h4" style={{ padding: Spacing.md, textAlign: "center" }}>
+              اختر نوع العرض
+            </ThemedText>
+            {OFFER_TYPE_OPTIONS.map((opt) => (
               <Pressable
-                key={cc}
-                style={[styles.pickerItem, { borderColor: theme.border }, country === cc && { backgroundColor: `${AppColors.primary}15` }]}
-                onPress={() => { setCountry(cc); setShowCountryPicker(false); }}
+                key={opt.value}
+                style={[
+                  styles.pickerItem,
+                  { borderColor: theme.border },
+                  offerType === opt.value && { backgroundColor: `${AppColors.primary}15` },
+                ]}
+                onPress={() => { setOfferType(opt.value); setShowTypePicker(false); }}
               >
-                <ThemedText type="body" style={{ color: country === cc ? AppColors.primary : theme.text, fontWeight: country === cc ? "700" : "400" }}>
-                  {cc.toUpperCase()}
+                <ThemedText
+                  type="body"
+                  style={{
+                    color: offerType === opt.value ? AppColors.primary : theme.text,
+                    fontWeight: offerType === opt.value ? "700" : "400",
+                  }}
+                >
+                  {opt.label}
                 </ThemedText>
               </Pressable>
             ))}
@@ -159,20 +361,52 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   fieldContainer: { marginBottom: Spacing.md },
   label: { marginBottom: Spacing.xs, fontSize: 12 },
-  input: { borderWidth: 1, borderRadius: BorderRadius.md, padding: Spacing.md, fontSize: 15 },
-  countryBtn: {
-    borderRadius: BorderRadius.md, padding: Spacing.md,
-    flexDirection: "row", alignItems: "center", gap: Spacing.xs, justifyContent: "center",
+  input: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    fontSize: 15,
+  },
+  pickerBtn: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    justifyContent: "space-between",
   },
   bottomBtns: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
-    padding: Spacing.lg, borderTopWidth: StyleSheet.hairlineWidth,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: Spacing.lg,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   btn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: Spacing.sm, padding: Spacing.md, borderRadius: BorderRadius.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: Spacing.xl },
-  pickerCard: { width: "100%", borderRadius: BorderRadius.xl, borderWidth: 1, overflow: "hidden" },
-  pickerItem: { padding: Spacing.md, borderBottomWidth: StyleSheet.hairlineWidth, alignItems: "center" },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: Spacing.xl,
+  },
+  pickerCard: {
+    width: "100%",
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  pickerItem: {
+    padding: Spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    alignItems: "center",
+  },
 });

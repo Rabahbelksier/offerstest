@@ -56,6 +56,9 @@ type TemplateType =
   | "bundle_page_link"
   | "best_seller"
   | "trending"
+  | "trending_currency"
+  | "trending_bundle"
+  | "trending_super_bigsave"
   | "notifications";
 
 type AppLang = "ar" | "en" | "fr" | "pt";
@@ -88,6 +91,9 @@ const KEYWORDS_COUPONS: KeywordDef[] = [
   { key: "{cod_2}", descKey: "kw_cod_2" },
   { key: "{cod_3}", descKey: "kw_cod_3" },
 ];
+
+const KW_INFO: KeywordDef = { key: "{info}", descKey: "kw_info" };
+const KW_PRICE3PCS: KeywordDef = { key: "{price3pcs}", descKey: "kw_price3pcs" };
 
 const KEYWORDS_ALL_LINKS: KeywordDef[] = [
   { key: "{offers}", descKey: "kw_offers" },
@@ -138,7 +144,30 @@ function getKeywordsForTemplate(templateType: TemplateType): KeywordDef[] {
         ...KEYWORDS_PRODUCT_BASE,
         { key: "{finalPricetrend}", descKey: "kw_finalPricetrend" },
         ...KEYWORDS_COUPONS,
+        KW_INFO,
         { key: "{direct_link}", descKey: "kw_direct_link" },
+        KW_TRENDING,
+      ];
+    case "trending_currency":
+      return [
+        ...KEYWORDS_PRODUCT_BASE,
+        { key: "{finalPricetrend}", descKey: "kw_finalPricetrend" },
+        KW_INFO,
+        KW_TRENDING,
+      ];
+    case "trending_bundle":
+      return [
+        ...KEYWORDS_PRODUCT_BASE,
+        { key: "{finalPricetrend}", descKey: "kw_finalPricetrend" },
+        KW_INFO,
+        KW_PRICE3PCS,
+        KW_TRENDING,
+      ];
+    case "trending_super_bigsave":
+      return [
+        ...KEYWORDS_PRODUCT_BASE,
+        { key: "{finalPricetrend}", descKey: "kw_finalPricetrend" },
+        KW_INFO,
         KW_TRENDING,
       ];
     case "best_seller":
@@ -228,6 +257,9 @@ export default function MessageDesignScreen() {
     { key: "bundle_direct_link", label: t("bundle_direct_link"), icon: "package" },
     { key: "bundle_page_link", label: t("bundle_page_link"), icon: "layers" },
     { key: "trending", label: t("trending_offer"), icon: "trending-up" },
+    { key: "trending_currency", label: "رائج - عملات", icon: "dollar-sign" },
+    { key: "trending_bundle", label: "رائج - حزمات", icon: "package" },
+    { key: "trending_super_bigsave", label: "رائج - سوبر/بيڤ", icon: "zap" },
     { key: "cart", label: t("cart_template"), icon: "shopping-cart" },
     ...(isAdmin ? [{ key: "notifications" as TemplateType, label: t("notification_tab"), icon: "bell" }] : []),
   ];
@@ -275,7 +307,8 @@ export default function MessageDesignScreen() {
 
     const keys: TemplateType[] = [
       "share", "details", "copyAll", "best_seller", "coin_link", "direct_link", "super_link",
-      "big_save_link", "limited_link", "potential_link", "bundle_direct_link", "bundle_page_link", "trending", "cart"
+      "big_save_link", "limited_link", "potential_link", "bundle_direct_link", "bundle_page_link",
+      "trending", "trending_currency", "trending_bundle", "trending_super_bigsave", "cart"
     ];
     const loaded: Record<string, string> = {};
     await Promise.all(keys.map(async (key) => {
@@ -463,7 +496,9 @@ export default function MessageDesignScreen() {
       .replace(/{evaluateRate}/g, "4.8")
       .replace(/{orders}/g, "1500")
       .replace(/{shipping_fees}/g, t("free_shipping"))
-      .replace(/{offers}/g, isAr ? "عروض متعددة متاحة..." : "Multiple Offers Available...");
+      .replace(/{offers}/g, isAr ? "عروض متعددة متاحة..." : "Multiple Offers Available...")
+      .replace(/{info}/g, isAr ? "ملاحظة إضافية من الأدمن" : "Admin note here")
+      .replace(/{price3pcs}/g, "29.99$");
   };
 
   const activeKeywords = getKeywordsForTemplate(activeTab);
