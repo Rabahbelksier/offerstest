@@ -82,8 +82,5 @@
     "prettier": "3.6.2",
     "typescript": "~5.9.2"
   },
-  "private": true,
-  "overrides": {
-    "tar": "7.5.22"
-  }
+  "private": true
 }
