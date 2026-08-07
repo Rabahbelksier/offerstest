@@ -61,6 +61,13 @@ type TemplateType =
   | "trending_super_bigsave"
   | "notifications";
 
+const TRENDING_TEMPLATE_TYPES: TemplateType[] = [
+  "trending",
+  "trending_currency",
+  "trending_bundle",
+  "trending_super_bigsave",
+];
+
 type AppLang = "ar" | "en" | "fr" | "pt";
 
 interface KeywordDef {
@@ -256,10 +263,7 @@ export default function MessageDesignScreen() {
     { key: "potential_link", label: t("potential_link"), icon: "percent" },
     { key: "bundle_direct_link", label: t("bundle_direct_link"), icon: "package" },
     { key: "bundle_page_link", label: t("bundle_page_link"), icon: "layers" },
-    { key: "trending", label: t("trending_offer"), icon: "trending-up" },
-    { key: "trending_currency", label: "رائج - عملات", icon: "dollar-sign" },
-    { key: "trending_bundle", label: "رائج - حزمات", icon: "package" },
-    { key: "trending_super_bigsave", label: "رائج - سوبر/بيڤ", icon: "zap" },
+    { key: "trending", label: "أبرز العروض", icon: "layers" },
     { key: "cart", label: t("cart_template"), icon: "shopping-cart" },
     ...(isAdmin ? [{ key: "notifications" as TemplateType, label: t("notification_tab"), icon: "bell" }] : []),
   ];
@@ -502,6 +506,7 @@ export default function MessageDesignScreen() {
   };
 
   const activeKeywords = getKeywordsForTemplate(activeTab);
+  const isTrendingTemplate = TRENDING_TEMPLATE_TYPES.includes(activeTab);
 
   // ─── Reusable section header (RTL-aware) ─────────────────────────────────
   const SectionHeader = ({ icon, title, onReset }: { icon: string; title: string; onReset?: () => void }) => (
@@ -551,18 +556,84 @@ export default function MessageDesignScreen() {
                     key={tab.key}
                     style={[
                       styles.tab,
-                      { backgroundColor: activeTab === tab.key ? AppColors.primary : theme.backgroundSecondary },
+                      {
+                        backgroundColor:
+                          activeTab === tab.key ||
+                          (tab.key === "trending" && isTrendingTemplate)
+                            ? AppColors.primary
+                            : theme.backgroundSecondary,
+                      },
                     ]}
                     onPress={() => setActiveTab(tab.key)}
                   >
-                    <Feather name={tab.icon as any} size={16} color={activeTab === tab.key ? "#FFFFFF" : theme.text} />
-                    <ThemedText type="small" style={{ color: activeTab === tab.key ? "#FFFFFF" : theme.text, fontWeight: activeTab === tab.key ? "600" : "400" }}>
+                    <Feather
+                      name={tab.icon as any}
+                      size={16}
+                      color={
+                        activeTab === tab.key ||
+                        (tab.key === "trending" && isTrendingTemplate)
+                          ? "#FFFFFF"
+                          : theme.text
+                      }
+                    />
+                    <ThemedText
+                      type="small"
+                      style={{
+                        color:
+                          activeTab === tab.key ||
+                          (tab.key === "trending" && isTrendingTemplate)
+                            ? "#FFFFFF"
+                            : theme.text,
+                        fontWeight:
+                          activeTab === tab.key ||
+                          (tab.key === "trending" && isTrendingTemplate)
+                            ? "600"
+                            : "400",
+                      }}
+                    >
                       {tab.label}
                     </ThemedText>
                   </Pressable>
                 ))}
               </View>
             </ScrollView>
+            {isTrendingTemplate && (
+              <View style={[styles.trendingTemplateChoices, isRTL && { flexDirection: "row-reverse" }]}>
+                {[
+                  { key: "trending" as TemplateType, label: "عرض عادي", icon: "trending-up" },
+                  { key: "trending_currency" as TemplateType, label: "عرض عملات", icon: "dollar-sign" },
+                  { key: "trending_bundle" as TemplateType, label: "عرض حزمات", icon: "package" },
+                  { key: "trending_super_bigsave" as TemplateType, label: "عرض سوبر/بيڤ", icon: "zap" },
+                ].map((template) => (
+                  <Pressable
+                    key={template.key}
+                    style={[
+                      styles.trendingTemplateChoice,
+                      {
+                        borderColor:
+                          activeTab === template.key ? AppColors.primary : theme.border,
+                        backgroundColor:
+                          activeTab === template.key
+                            ? `${AppColors.primary}15`
+                            : theme.backgroundSecondary,
+                      },
+                    ]}
+                    onPress={() => setActiveTab(template.key)}
+                  >
+                    <Feather name={template.icon as any} size={15} color={AppColors.primary} />
+                    <ThemedText
+                      type="small"
+                      style={{
+                        color: activeTab === template.key ? AppColors.primary : theme.text,
+                        fontWeight: activeTab === template.key ? "700" : "400",
+                      }}
+                    >
+                      {template.label}
+                    </ThemedText>
+                  </Pressable>
+                ))}
+              </View>
+            )}
           </View>
 
           {/* ── Language selector (all tabs except notifications) ── */}
@@ -857,6 +928,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: Spacing.sm,
     paddingBottom: Spacing.sm,
+  },
+  trendingTemplateChoices: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  trendingTemplateChoice: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
   },
   tab: {
     minWidth: 100,

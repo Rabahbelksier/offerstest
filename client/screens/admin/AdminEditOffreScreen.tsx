@@ -22,31 +22,17 @@ import { useTheme } from "@/hooks/useTheme";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AppColors, Spacing, BorderRadius } from "@/constants/theme";
 import { getApiUrl } from "@/lib/query-client";
+import {
+  type OfferType,
+  OFFER_TYPE_OPTIONS,
+  HIDE_SELLER_COUPON,
+  SHOW_PRICE3PCS,
+  normalizeOfferType,
+  getOfferTypeLabel,
+} from "@/lib/offer-types";
 
 import { SHIPPING_COUNTRY_CODES_LOWER } from "@/constants/countries";
 const COUNTRIES = SHIPPING_COUNTRY_CODES_LOWER;
-
-// ── Offer type options ──────────────────────────────────────────────────────
-type OfferType = "normal" | "currency" | "super" | "bigsave" | "bundle";
-
-interface OfferTypeOption {
-  value: OfferType;
-  label: string;
-}
-
-const OFFER_TYPE_OPTIONS: OfferTypeOption[] = [
-  { value: "normal",   label: "عرض عادي" },
-  { value: "currency", label: "عرض عملات" },
-  { value: "super",    label: "عرض السوبر" },
-  { value: "bigsave",  label: "عرض البيڤ سايف" },
-  { value: "bundle",   label: "عرض الحزمات" },
-];
-
-/** Types that hide the seller coupon field */
-const HIDE_SELLER_COUPON: OfferType[] = ["super", "bigsave", "bundle"];
-
-/** Types that show the price3pcs field */
-const SHOW_PRICE3PCS: OfferType[] = ["bundle"];
 
 type RouteParams = {
   AdminEditOffre: {
@@ -60,6 +46,7 @@ type RouteParams = {
     currentPrice?: string;
     imageUrl?: string;
     offerType?: string;
+    offer_type?: string;
     price3pcs?: string;
   };
 };
@@ -82,7 +69,9 @@ export default function AdminEditOffreScreen() {
   const [info, setInfo] = useState(params.info || "");
   const [imageUrl, setImageUrl] = useState(params.imageUrl || "");
   const [country, setCountry] = useState((params.country || "dz").toLowerCase());
-  const [offerType, setOfferType] = useState<OfferType>((params.offerType as OfferType) || "normal");
+  const [offerType, setOfferType] = useState<OfferType>(
+    normalizeOfferType(params.offerType ?? params.offer_type),
+  );
   const [price3pcs, setPrice3pcs] = useState(params.price3pcs || "");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [showTypePicker, setShowTypePicker] = useState(false);
@@ -99,8 +88,7 @@ export default function AdminEditOffreScreen() {
   const hideSellerCoupon = HIDE_SELLER_COUPON.includes(offerType);
   const showPrice3pcsField = SHOW_PRICE3PCS.includes(offerType);
 
-  const selectedTypeLabel =
-    OFFER_TYPE_OPTIONS.find(o => o.value === offerType)?.label ?? "عرض عادي";
+  const selectedTypeLabel = getOfferTypeLabel(offerType);
 
   const handleApply = async () => {
     setIsSubmitting(true);
@@ -119,6 +107,7 @@ export default function AdminEditOffreScreen() {
           currentPrice,
           imageUrl,
           offerType,
+          offer_type: offerType,
           price3pcs: showPrice3pcsField ? price3pcs : "",
         }),
       });

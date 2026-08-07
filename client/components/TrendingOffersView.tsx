@@ -33,6 +33,7 @@ import {
 import type { RootStackParamList } from "@/navigation/RootStackNavigator";
 import { AdminToolbar } from "@/components/AdminToolbar";
 import { useAuth } from "@/contexts/AuthContext";
+import { normalizeOfferType } from "@/lib/offer-types";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -54,6 +55,7 @@ interface Offre {
   date?: string | null;
   currentPrice?: string | null;
   offerType?: string;
+  offer_type?: string;
   price3pcs?: string;
 }
 
@@ -377,7 +379,7 @@ export function TrendingOffersView() {
               country: country,
               currentPrice: item.currentPrice || "",
               imageUrl: item.imageUrl || "",
-              offerType: item.offerType || "",
+              offerType: normalizeOfferType(item.offerType ?? item.offer_type),
               price3pcs: item.price3pcs || "",
             })}
           >

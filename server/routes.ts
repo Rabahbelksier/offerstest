@@ -1633,6 +1633,13 @@ async function trackTrendingProduct(
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
+  // Keep admin offer writes compatible with both camelCase client payloads
+  // and legacy/raw SQL payloads that use the database column name.
+  const normalizeOfferType = (value: unknown): string =>
+    ["normal", "currency", "super", "bigsave", "bundle"].includes(String(value))
+      ? String(value)
+      : "normal";
+
   // ─────────────────────────────────────────────────────────────────────────
   // Debug endpoint (temporary)
   // ─────────────────────────────────────────────────────────────────────────
@@ -3750,7 +3757,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(numericId) || numericId <= 0 || numericId > 2147483647) {
         return res.status(400).json({ message: "Invalid offer ID" });
       }
-      const { title, price, sellerCoupon, productUrl, info, country, currentPrice, imageUrl, offerType, price3pcs } = req.body;
+      const {
+        title,
+        price,
+        sellerCoupon,
+        productUrl,
+        info,
+        country,
+        currentPrice,
+        imageUrl,
+        offerType,
+        offer_type,
+        price3pcs,
+      } = req.body;
       const cc = country ? country.toLowerCase() : country;
       await db.execute(sql`
         UPDATE offres SET
@@ -3762,7 +3781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           country = ${cc},
           current_price = ${currentPrice ?? null},
           image_url = ${imageUrl || null},
-          offer_type = ${offerType || null},
+          offer_type = ${normalizeOfferType(offerType ?? offer_type)},
           price3pcs = ${price3pcs || null},
           updated_at = NOW()
         WHERE id = ${numericId}
@@ -3818,7 +3837,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cc = row.country ? row.country.toLowerCase() : null;
         const result = await db.execute(sql`
           INSERT INTO offres (title, price, seller_coupon, product_url, info, country, current_price, image_url, offer_type, price3pcs, date)
-          VALUES (${row.title}, ${row.price}, ${row.sellerCoupon || null}, ${row.productUrl}, ${row.info || null}, ${cc}, ${row.currentPrice || null}, ${row.imageUrl || null}, ${row.offerType || null}, ${row.price3pcs || null}, NOW())
+          VALUES (${row.title}, ${row.price}, ${row.sellerCoupon || null}, ${row.productUrl}, ${row.info || null}, ${cc}, ${row.currentPrice || null}, ${row.imageUrl || null}, ${normalizeOfferType(row.offerType ?? row.offer_type)}, ${row.price3pcs || null}, NOW())
           RETURNING id
         `);
         const newId = (result as any).rows?.[0]?.id;

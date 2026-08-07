@@ -22,31 +22,15 @@ import { useTheme } from "@/hooks/useTheme";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AppColors, Spacing, BorderRadius } from "@/constants/theme";
 import { getApiUrl } from "@/lib/query-client";
+import {
+  type OfferType,
+  OFFER_TYPE_OPTIONS,
+  HIDE_SELLER_COUPON,
+  SHOW_PRICE3PCS,
+} from "@/lib/offer-types";
 
 import { SHIPPING_COUNTRY_CODES_LOWER } from "@/constants/countries";
 const COUNTRIES = SHIPPING_COUNTRY_CODES_LOWER;
-
-// ── Offer type options ──────────────────────────────────────────────────────
-type OfferType = "normal" | "currency" | "super" | "bigsave" | "bundle";
-
-interface OfferTypeOption {
-  value: OfferType;
-  label: string;
-}
-
-const OFFER_TYPE_OPTIONS: OfferTypeOption[] = [
-  { value: "normal",   label: "عرض عادي" },
-  { value: "currency", label: "عرض عملات" },
-  { value: "super",    label: "عرض السوبر" },
-  { value: "bigsave",  label: "عرض البيڤ سايف" },
-  { value: "bundle",   label: "عرض الحزمات" },
-];
-
-/** Types that hide the seller coupon field */
-const HIDE_SELLER_COUPON: OfferType[] = ["super", "bigsave", "bundle"];
-
-/** Types that show the price3pcs field */
-const SHOW_PRICE3PCS: OfferType[] = ["bundle"];
 
 interface OffreEntry {
   title: string;
