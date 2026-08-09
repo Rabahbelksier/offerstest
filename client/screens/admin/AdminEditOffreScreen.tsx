@@ -108,7 +108,7 @@ export default function AdminEditOffreScreen() {
           imageUrl,
           offerType,
           offer_type: offerType,
-          price3pcs: showPrice3pcsField ? price3pcs : "",
+          price3pcs: showPrice3pcsField ? price3pcs.trim() : "",
         }),
       });
       if (!res.ok) throw new Error();

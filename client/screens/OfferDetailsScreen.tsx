@@ -30,6 +30,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AppColors, Spacing, BorderRadius } from "@/constants/theme";
 import { formatProductMessage, getShareTemplate, getSettings, ProductItem, getTrendingOffers, saveTrendingOffers, getTrendingOfferDetails, saveTrendingOfferDetails, saveItem, isItemSaved, SavedItem } from "@/lib/storage";
 import { getApiUrl } from "@/lib/query-client";
+import { normalizeOfferType } from "@/lib/offer-types";
 import type { RootStackParamList } from "@/navigation/RootStackNavigator";
 
 type OfferDetailsRouteProp = RouteProp<RootStackParamList, "OfferDetails">;
@@ -52,6 +53,14 @@ export default function OfferDetailsScreen() {
   const [isSaved, setIsSaved] = useState(false);
 
   const savedId = `offer_${offer.id}`;
+  const getCurrentOfferType = () =>
+    normalizeOfferType(
+      (productDetails as any)?.offerType ??
+      (offer as any).offerType ??
+      (offer as any).offer_type,
+    );
+  const getCurrentPrice3pcs = () =>
+    (offer as any).price3pcs || productDetails?.price3pcs || "";
 
   const handleSaveItem = async () => {
     if (!productDetails) return;
@@ -195,7 +204,7 @@ export default function OfferDetailsScreen() {
     sellerCoupon: offer.sellerCoupon || "",
     dbPrice: offer.price_trending || offer.price || "",
     info: offer.info || "",
-    offerType: (offer as any).offerType || (offer as any).offer_type || "",
+    offerType: getCurrentOfferType(),
     price3pcs: (offer as any).price3pcs || "",
   });
 
@@ -206,7 +215,11 @@ export default function OfferDetailsScreen() {
 
     const cached = await getTrendingOfferDetails(cacheKey);
     if (cached) {
-      setProductDetails(cached);
+      setProductDetails({
+        ...cached,
+        offerType: getCurrentOfferType(),
+        price3pcs: getCurrentPrice3pcs() || cached.price3pcs || "",
+      });
       if (!forceRefresh) {
         setIsLoading(false);
         return;
@@ -251,8 +264,8 @@ export default function OfferDetailsScreen() {
         cod_1: (offer as any).cod_1 || data.cod_1 || "",
         cod_2: (offer as any).cod_2 || data.cod_2 || "",
         cod_3: (offer as any).cod_3 || data.cod_3 || "",
-        offerType: (offer as any).offerType || (offer as any).offer_type || "",
-        price3pcs: (offer as any).price3pcs || "",
+        offerType: getCurrentOfferType(),
+        price3pcs: getCurrentPrice3pcs(),
       };
       
       setProductDetails(enhancedData);
@@ -297,7 +310,7 @@ export default function OfferDetailsScreen() {
 
   /** Returns the template DB key based on the offer type */
   const getTrendingTemplateKey = (): string => {
-    const ot = ((offer as any).offerType || (offer as any).offer_type || "normal") as string;
+    const ot = getCurrentOfferType();
     if (ot === "currency") return "trending_currency";
     if (ot === "bundle") return "trending_bundle";
     if (ot === "super" || ot === "bigsave") return "trending_super_bigsave";
@@ -380,14 +393,14 @@ export default function OfferDetailsScreen() {
               </View>
             ) : null}
 
-            {((offer as any).offerType || (offer as any).offer_type) === "bundle" && productDetails?.price3pcs ? (
+            {getCurrentOfferType() === "bundle" && getCurrentPrice3pcs() ? (
               <View style={[styles.infoRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row', marginTop: Spacing.sm }]}>
                 <ThemedText type="body" style={{ fontWeight: '700' }}>سعر 3 قطع: </ThemedText>
-                <ThemedText type="h3" style={{ color: AppColors.primary }}>{productDetails.price3pcs}</ThemedText>
+                <ThemedText type="h3" style={{ color: AppColors.primary }}>{getCurrentPrice3pcs()}</ThemedText>
               </View>
             ) : null}
 
-            {productDetails?.sellerCoupon && !["super","bigsave","bundle"].includes((offer as any).offerType || (offer as any).offer_type || "") ? (
+            {productDetails?.sellerCoupon && !["super","bigsave","bundle"].includes(getCurrentOfferType()) ? (
               <View style={[styles.infoRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row', marginTop: Spacing.sm }]}>
                 <ThemedText type="body" style={{ fontWeight: '700' }}>{t("seller_coupon")}: </ThemedText>
                 <ThemedText type="body" style={{ color: theme.text }}>{productDetails.sellerCoupon}</ThemedText>
@@ -409,7 +422,7 @@ export default function OfferDetailsScreen() {
               </ThemedText>
             ) : null}
 
-            {(productDetails?.cod_1 || productDetails?.cod_2 || productDetails?.cod_3) && !["super","bigsave"].includes((offer as any).offerType || (offer as any).offer_type || "") ? (
+            {(productDetails?.cod_1 || productDetails?.cod_2 || productDetails?.cod_3) && !["super","bigsave"].includes(getCurrentOfferType()) ? (
               <View style={[styles.promoSection, { marginTop: Spacing.md }]}>
                 <View style={[styles.promoHeaderRow, { flexDirection: language === 'ar' ? 'row-reverse' : 'row' }]}>
                   <ThemedText type="small" style={{ fontWeight: '600', textAlign: language === 'ar' ? 'right' : 'left' }}>{t("best_promo_codes")}:</ThemedText>

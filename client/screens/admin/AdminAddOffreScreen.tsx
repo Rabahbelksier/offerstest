@@ -27,6 +27,7 @@ import {
   OFFER_TYPE_OPTIONS,
   HIDE_SELLER_COUPON,
   SHOW_PRICE3PCS,
+  normalizeOfferType,
 } from "@/lib/offer-types";
 
 import { SHIPPING_COUNTRY_CODES_LOWER } from "@/constants/countries";
@@ -96,7 +97,13 @@ export default function AdminAddOffreScreen() {
       const res = await fetch(new URL("/api/admin/offres/bulk", apiUrl).href, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rows: pending }),
+        body: JSON.stringify({
+          rows: pending.map((row) => ({
+            ...row,
+            offerType: normalizeOfferType(row.offerType),
+            price3pcs: row.price3pcs.trim() || "",
+          })),
+        }),
       });
       if (!res.ok) throw new Error();
       showToast(t("changes_saved"));

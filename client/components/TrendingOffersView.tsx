@@ -144,6 +144,8 @@ export function TrendingOffersView() {
           cod_1: offer.cod_1 || data.cod_1 || "",
           cod_2: offer.cod_2 || data.cod_2 || "",
           cod_3: offer.cod_3 || data.cod_3 || "",
+          offerType: normalizeOfferType(offer.offerType ?? offer.offer_type),
+          price3pcs: offer.price3pcs || "",
         };
         await saveTrendingOfferDetails(cacheKey, enhanced);
       }).catch(() => {});
@@ -218,7 +220,12 @@ export function TrendingOffersView() {
         const res = await fetch(new URL(`/api/offres?country=${cc}&page=${page}`, apiUrl).href);
         if (!res.ok) break;
         const data = await res.json();
-        const offers: Offre[] = data.offers || (Array.isArray(data) ? data : []);
+        const offers: Offre[] = (data.offers || (Array.isArray(data) ? data : []))
+          .map((offer: Offre) => ({
+            ...offer,
+            offerType: normalizeOfferType(offer.offerType ?? offer.offer_type),
+            price3pcs: offer.price3pcs || "",
+          }));
         allFetched = [...allFetched, ...offers];
         if (!data.totalPages || page >= data.totalPages) break;
         page++;
@@ -266,9 +273,14 @@ export function TrendingOffersView() {
 
         const cached = await getAllOffres(cc);
         if (cached && cached.length > 0) {
-          setAllOffers(cached as Offre[]);
-          checkAndSync(cc, cached as Offre[]);
-          prefetchPageDetails((cached as Offre[]).slice(0, PAGE_SIZE), cc);
+          const normalizedCached = (cached as Offre[]).map((offer) => ({
+            ...offer,
+            offerType: normalizeOfferType(offer.offerType ?? offer.offer_type),
+            price3pcs: offer.price3pcs || "",
+          }));
+          setAllOffers(normalizedCached);
+          checkAndSync(cc, normalizedCached);
+          prefetchPageDetails(normalizedCached.slice(0, PAGE_SIZE), cc);
         } else {
           await fetchAllFromServer(cc);
         }
